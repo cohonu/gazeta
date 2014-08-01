@@ -1,0 +1,47 @@
+﻿<div class="header">
+    <span id="out" class="menu-item selected">Выдача</span>
+    <span id="list" class="menu-item">Список</span>
+</div>
+
+<div class="content">
+    
+    <div></div>
+    
+    <div class="op-input">
+        
+        <label for="from">Кто</label><br />
+        <select id="from"></select>
+
+        <br />
+
+        <label for="to">Кому</label><br />
+        <select id="to"></select>
+
+        <br />
+
+        <label for="issueNumber">Номер</label><br />
+        <input id="issueNumber" type="number" value="82" />
+
+        <br />
+
+        <label for="quantity">Количество</label><br />
+        <input id="quantity" type="number" value="1" />
+
+        <br />
+
+        <label for="comment">Комментарий</label><br />
+        <input id="comment" type="text" size="50" />
+
+        <br />
+
+        <input id="save_op" type="button" value="Сохранить" />
+
+    </div>
+    
+    <div class="op-list">
+        
+        <table id="operations"></table>
+
+    </div>
+
+</div>
