@@ -46,20 +46,15 @@ namespace Stock.Common
                     CommandType = CommandType.StoredProcedure
                 };
                 connection.Open();
+
                 SqlDataReader reader = command.ExecuteReader();
                 List<Comrade> list = new List<Comrade>();
-                goto Label_0060;
-            Label_003D:
+
                 comrade = Map(reader);
-                if (comrade == null)
+                if (comrade != null)
                 {
-                    goto Label_0065;
+                    list.Add(comrade);
                 }
-                list.Add(comrade);
-            Label_0060:
-                flag = true;
-                goto Label_003D;
-            Label_0065:
                 enumerable = list;
             }
             return enumerable;
