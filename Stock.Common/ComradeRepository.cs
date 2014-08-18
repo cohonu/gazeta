@@ -4,6 +4,7 @@ namespace Stock.Common
     using System.Collections.Generic;
     using System.Data;
     using System.Data.SqlClient;
+    using System.Linq;
     using System.Runtime.InteropServices;
 
     public class ComradeRepository : IComradeRepository
@@ -37,27 +38,27 @@ namespace Stock.Common
 
         public IEnumerable<Comrade> Get()
         {
-            IEnumerable<Comrade> enumerable;
+            List<Comrade> list = new List<Comrade>();
             using (SqlConnection connection = new SqlConnection(this._connectionString))
             {
                 Comrade comrade;
-                bool flag;
                 SqlCommand command = new SqlCommand("Comrade_Get", connection) {
                     CommandType = CommandType.StoredProcedure
                 };
                 connection.Open();
 
                 SqlDataReader reader = command.ExecuteReader();
-                List<Comrade> list = new List<Comrade>();
 
-                comrade = Map(reader);
-                if (comrade != null)
+                while (reader.Read())
                 {
-                    list.Add(comrade);
+                    comrade = Map(reader);
+                    if (comrade != null)
+                    {
+                        list.Add(comrade);
+                    }
                 }
-                enumerable = list;
             }
-            return enumerable;
+            return list;
         }
 
         public Comrade Get(Guid id)
@@ -90,6 +91,58 @@ namespace Stock.Common
                 };
             }
             return comrade;
+        }
+
+        private static Dictionary<int, int> MapFromIssueDemand(IDataReader reader)
+        {
+            var result = new Dictionary<int, int>();
+
+            if (reader.Read())
+            {
+                int issue = 0, q = 0;
+                do
+                {
+                    var next = (int)reader["IssueNumberFrom"];
+                    if (++issue == next)
+                    {
+                        q = (int)reader["Quantity"];
+                    }
+
+                    result.Add(issue, q);
+
+                } while (reader.Read());
+            }
+
+            return result;
+        }
+
+        private static Dictionary<int, int> MapOptionalDemand(IDataReader reader)
+        {
+            var result = new Dictionary<int, int>();
+
+            if (reader.Read())
+            {
+                int issue = 0, next = (int)reader["IssueNumber"], q = (int)reader["Quantity"];
+                while (issue <= Stock.Issues.Max(i => i.Number))
+                {
+                    if (++issue == next)
+                    {
+                        result.Add(issue, q);
+                        if (!reader.Read())
+                        {
+                            break;
+                        }
+                        next = (int)reader["IssueNumber"];
+                        q = (int)reader["Quantity"];
+                    }
+                    else
+                    {
+                        result.Add(issue, 0);
+                    }
+                }
+            }
+
+            return result;
         }
     }
 }

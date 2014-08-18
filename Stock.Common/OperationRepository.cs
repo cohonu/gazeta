@@ -55,32 +55,26 @@ namespace Stock.Common
 
         public IEnumerable<Operation> Get()
         {
-            IEnumerable<Operation> enumerable;
+            List<Operation> list = new List<Operation>();
             using (SqlConnection connection = new SqlConnection(this._connectionString))
             {
-                Operation operation;
-                bool flag;
+                Operation operation = null;
                 SqlCommand command = new SqlCommand("Operation_Get", connection) {
                     CommandType = CommandType.StoredProcedure
                 };
                 connection.Open();
                 SqlDataReader reader = command.ExecuteReader();
-                List<Operation> list = new List<Operation>();
-                goto Label_0060;
-            Label_003D:
-                operation = Map(reader);
-                if (operation == null)
+
+                while (reader.Read())
                 {
-                    goto Label_0065;
+                    operation = Map(reader);
+                    if (operation != null)
+                    {
+                        list.Add(Map(reader));
+                    }
                 }
-                list.Add(operation);
-            Label_0060:
-                flag = true;
-                goto Label_003D;
-            Label_0065:
-                enumerable = list;
             }
-            return enumerable;
+            return list;
         }
 
         public Operation Get(int id)

@@ -21,5 +21,9 @@ namespace Stock.Common
 
         public Dictionary<int, int> Demands { get; set; }
 
+        public Dictionary<int, int> Income { get; set; }
+
+        public Dictionary<int, int> Outcome { get; set; }
+
     }
 }

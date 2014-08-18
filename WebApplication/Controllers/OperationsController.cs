@@ -29,7 +29,7 @@ namespace WebApplication.Controllers
             this._operations.Delete(id);
         }
 
-        public IEnumerable<WebApplication.Controllers.OperationGetDto> Get()
+        public IEnumerable<WebApplication.Controllers.OperationGetto> Get()
         {
             return this.Map(this._operations.Get(), this._comrades.Get());
         }
