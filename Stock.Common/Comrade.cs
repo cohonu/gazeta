@@ -19,11 +19,10 @@ namespace Stock.Common
 
         public string SecondName { get; set; }
 
-        public Dictionary<int, int> Demands { get; set; }
+        public Dictionary<int, Demand> Demands { get; set; }
 
-        public Dictionary<int, int> Income { get; set; }
+        public List<Operation> Incoming { get; set; }
 
-        public Dictionary<int, int> Outcome { get; set; }
-
+        public List<Operation> Outcoming { get; set; }
     }
 }

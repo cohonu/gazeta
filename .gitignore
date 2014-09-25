@@ -1,5 +1,9 @@
 ## Custom rules
 
+# Visual Studio project packages
+
+packages/*
+
 # Any temporary folders
 _*/
 
@@ -31,7 +35,8 @@ $RECYCLE.BIN/
 .LSOverride
 
 # Icon must ends with two \r.
-Icon
+Icon
+
 
 # Thumbnails
 ._*

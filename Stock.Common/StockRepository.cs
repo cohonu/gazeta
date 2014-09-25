@@ -17,11 +17,11 @@ namespace Stock.Common
             this._connectionString = connectionString ?? "Server=.;Database=gazeta;Trusted_Connection=True;";
         }
 
-        public void Get(out IEnumerable<Issue> issues, out IDictionary<int, int> quantities)
+        public List<Issue> GetIssues()
         {
-            issues = new List<Issue>();
+            var issues = new List<Issue>();
 
-            quantities = new Dictionary<int, int>();
+            var quantities = new Dictionary<int, int>();
 
             using (SqlConnection connection = new SqlConnection(this._connectionString))
             {
@@ -31,8 +31,10 @@ namespace Stock.Common
                 };
                 connection.Open();
 
-                Map(command.ExecuteReader(), (List<Issue>)issues, (Dictionary<int,int>)quantities);
+                Map(command.ExecuteReader(), (List<Issue>)issues, (Dictionary<int, int>)quantities);
             }
+
+            return issues;
         }
 
         private static void Map(IDataReader reader, List<Issue> issues, Dictionary<int, int> quantities)

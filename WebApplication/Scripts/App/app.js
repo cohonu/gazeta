@@ -4,8 +4,10 @@ window.model.comrades = window.model.comrades || {};
 
 var out = $("#out"),
     list = $("#list"),
+    clist = $("#clist"),
     opInput = $(".op-input"),
-    opList = $(".op-list");
+    opList = $(".op-list"),
+    opCList = $(".op-clist");
 
 getComrades();
 
@@ -15,6 +17,7 @@ $("#save_op").click(saveButtonClick);
 
 out.click(showOutPage);
 list.click(showListPage);
+clist.click(showCListPage);
 
 function getComrades() {
 
@@ -75,7 +78,7 @@ function deleteOperation(id) {
     });
 }
 
-function bindComrades(selector, data) {
+function bindComradesStatus(selector, data) {
 
     function comradeNameFormatter(first, second, last) {
         return last + " " + first;
@@ -91,6 +94,28 @@ function bindComrades(selector, data) {
                 comradeNameFormatter(data[i].FirstName, data[i].SecondName, data[i].LastName)
             )
             .appendTo(select);
+    }
+}
+
+function bindComrades(selector, data) {
+
+    function comradeNameFormatter(first, second, last) {
+        return last + " " + first;
+    }
+
+    data = data || model.comrades;
+
+    var table = $(selector).empty();
+
+    th = $("<tr />").appendTo(table);
+    for (var h in data[0]) {
+        $("<th />").text(h).appendTo(th);
+    }
+    for (var i in data) {
+        tr = $("<tr />").appendTo(table);
+        for (var j in data[i]) {
+            $("<td />").text(data[i][j]).appendTo(tr);
+        }
     }
 }
 
@@ -162,6 +187,8 @@ function showOutPage() {
 
     opList.hide();
     opInput.show();
+    opCList.hide();
+
 }
 
 function showListPage() {
@@ -170,6 +197,16 @@ function showListPage() {
 
     opInput.hide();
     opList.show();
+    opCList.hide();
 
     getOperations();
+}
+
+function showCListPage() {
+    $(".selected").removeClass("selected");
+    list.addClass("selected");
+
+    opInput.hide();
+    opList.hide();
+    opCList.show();
 }

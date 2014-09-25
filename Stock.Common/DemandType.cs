@@ -6,8 +6,10 @@ using System.Threading.Tasks;
 
 namespace Stock.Common
 {
-    public interface IStockRepository
+    public enum DemandType
     {
-        List<Issue> GetIssues();
+        Basic = 0,
+        Distributional = 1,
+        Optional = 2
     }
 }

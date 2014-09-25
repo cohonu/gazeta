@@ -1,6 +1,7 @@
 namespace WebApplication.Controllers
 {
     using Stock.Common;
+    using Stock.Extensions;
     using System;
     using System.Collections.Generic;
     using System.Configuration;
@@ -29,7 +30,7 @@ namespace WebApplication.Controllers
             this._operations.Delete(id);
         }
 
-        public IEnumerable<WebApplication.Controllers.OperationGetto> Get()
+        public IEnumerable<OperationGetDto> Get()
         {
             return this.Map(this._operations.Get(), this._comrades.Get());
         }
@@ -39,16 +40,11 @@ namespace WebApplication.Controllers
             return this._operations.Get(id);
         }
 
-        private DateTimeOffset GetMoscowDateTimeOffset()
-        {
-            return TimeZoneInfo.ConvertTimeBySystemTimeZoneId(DateTimeOffset.Now, "Russian Standard Time");
-        }
-
-        private IEnumerable<WebApplication.Controllers.OperationGetDto> Map(IEnumerable<Operation> operations, IEnumerable<Comrade> comrades)
+        private IEnumerable<OperationGetDto> Map(IEnumerable<Operation> operations, IEnumerable<Comrade> comrades)
         {
             Comrade[] comradesArray = (comrades as Comrade[]) ?? comrades.ToArray<Comrade>();
             return (from o in operations
-                select new WebApplication.Controllers.OperationGetDto { Id = o.Id, Date = o.Date.ToString("dd MMMM (HH:mm)"), From = (from c in comradesArray
+                select new OperationGetDto { Id = o.Id, Date = o.Date.ToString("dd MMMM (HH:mm)"), From = (from c in comradesArray
                     where c.Id == o.ComradeFrom
                     select c.LastName).FirstOrDefault<string>(), To = (from c in comradesArray
                     where c.Id == o.ComradeTo
@@ -57,10 +53,10 @@ namespace WebApplication.Controllers
                 select x);
         }
 
-        public void Post(WebApplication.Controllers.OperationDto op)
+        public void Post(OperationDto op)
         {
             Operation operation = new Operation {
-                Date = this.GetMoscowDateTimeOffset(),
+                Date = DateTimeOffset.Now.InMoscow(),
                 ComradeFrom = op.From,
                 ComradeTo = op.To,
                 Quantity = op.Quantity,

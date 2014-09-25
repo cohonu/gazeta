@@ -6,6 +6,9 @@ namespace Stock.Common
     public interface IComradeRepository
     {
         IEnumerable<Comrade> Get();
+
         Comrade Get(Guid id);
+
+        Dictionary<int, Demand> GetDemands(Guid comradeId);
     }
 }

@@ -11,9 +11,13 @@ namespace Stock.Common
     {
         private readonly string _connectionString;
 
-        public ComradeRepository(string connectionString = null)
+        private IComradeMapper _mapper;
+
+        public ComradeRepository(string connectionString = null, IComradeMapper mapper = null)
         {
-            this._connectionString = connectionString ?? "Server=.;Database=gazeta;Trusted_Connection=True;";
+            _connectionString = connectionString ?? "Server=.;Database=gazeta;Trusted_Connection=True;";
+
+            _mapper = mapper ?? new ComradeMapper();
         }
 
         public void Add(Comrade cmrd)
@@ -51,7 +55,7 @@ namespace Stock.Common
 
                 while (reader.Read())
                 {
-                    comrade = Map(reader);
+                    comrade = _mapper.Map(reader);
                     if (comrade != null)
                     {
                         list.Add(comrade);
@@ -63,86 +67,37 @@ namespace Stock.Common
 
         public Comrade Get(Guid id)
         {
+            Comrade comrade = null;
+
             using (SqlConnection connection = new SqlConnection(this._connectionString))
             {
-                SqlCommand command = new SqlCommand("Comrade_Get", connection) {
+                SqlCommand command = new SqlCommand("Comrade_Get", connection)
+                {
                     CommandType = CommandType.StoredProcedure
                 };
                 command.Parameters.AddWithValue("@Id", id);
                 connection.Open();
-                return Map(command.ExecuteReader());
+                comrade = _mapper.Map(command.ExecuteReader());
             }
-        }
 
-        private static Comrade Map(IDataReader reader)
-        {
-            if (reader == null)
-            {
-                throw new ArgumentNullException("reader");
-            }
-            Comrade comrade = null;
-            if (reader.Read())
-            {
-                comrade = new Comrade {
-                    Id = (Guid) reader["Id"],
-                    FirstName = (reader["FirstName"] == DBNull.Value) ? null : reader["FirstName"].ToString(),
-                    SecondName = (reader["SecondName"] == DBNull.Value) ? null : reader["SecondName"].ToString(),
-                    LastName = (reader["LastName"] == DBNull.Value) ? null : reader["LastName"].ToString()
-                };
-            }
+            comrade.Demands = GetDemands(comrade.Id);
+
             return comrade;
         }
 
-        private static Dictionary<int, int> MapFromIssueDemand(IDataReader reader)
+        public Dictionary<int, Demand> GetDemands(Guid comradeId)
         {
-            var result = new Dictionary<int, int>();
-
-            if (reader.Read())
+            using (SqlConnection conn = new SqlConnection(this._connectionString))
             {
-                int issue = 0, q = 0;
-                do
+                SqlCommand command = new SqlCommand("Demand_Get", conn)
                 {
-                    var next = (int)reader["IssueNumberFrom"];
-                    if (++issue == next)
-                    {
-                        q = (int)reader["Quantity"];
-                    }
+                    CommandType = CommandType.StoredProcedure
+                };
+                command.Parameters.AddWithValue("@Comrade", comradeId);
+                conn.Open();
 
-                    result.Add(issue, q);
-
-                } while (reader.Read());
+                return _mapper.MapDemands(command.ExecuteReader());
             }
-
-            return result;
-        }
-
-        private static Dictionary<int, int> MapOptionalDemand(IDataReader reader)
-        {
-            var result = new Dictionary<int, int>();
-
-            if (reader.Read())
-            {
-                int issue = 0, next = (int)reader["IssueNumber"], q = (int)reader["Quantity"];
-                while (issue <= Stock.Issues.Max(i => i.Number))
-                {
-                    if (++issue == next)
-                    {
-                        result.Add(issue, q);
-                        if (!reader.Read())
-                        {
-                            break;
-                        }
-                        next = (int)reader["IssueNumber"];
-                        q = (int)reader["Quantity"];
-                    }
-                    else
-                    {
-                        result.Add(issue, 0);
-                    }
-                }
-            }
-
-            return result;
         }
     }
 }
